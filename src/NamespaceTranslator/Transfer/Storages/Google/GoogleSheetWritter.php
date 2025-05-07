@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Wavevision\NamespaceTranslator\Transfer\Storages\Google;
 
@@ -18,53 +18,56 @@ use function count;
 class GoogleSheetWritter
 {
 
-	use InjectRangeFactory;
-	use InjectSheetServiceFactory;
-	use SmartObject;
+    use InjectRangeFactory;
+    use InjectSheetServiceFactory;
+    use SmartObject;
 
-	/**
-	 * @param array<mixed> $data
-	 */
-	public function write(Config $config, array $data): void
-	{
-		$service = $this->sheetServiceFactory->create($config);
-		$this->createTabIfMissing($service, $config);
-		$service->spreadsheets_values->update(
-			$config->getSheetId(),
-			$this->rangeFactory->create($config->getTabName(), count($data[0])),
-			new Google_Service_Sheets_ValueRange(
-				[
-					'values' => $data,
-				]
-			),
-			[
-				'valueInputOption' => 'USER_ENTERED',
-			]
-		);
-	}
+    /**
+     * @param array<mixed> $data
+     */
+    public function write(Config $config, array $data): void
+    {
+        array_walk_recursive($data, function (&$value) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'auto');
+        });
+        $service = $this->sheetServiceFactory->create($config);
+        $this->createTabIfMissing($service, $config);
+        $service->spreadsheets_values->update(
+            $config->getSheetId(),
+            $this->rangeFactory->create($config->getTabName(), count($data[0])),
+            new Google_Service_Sheets_ValueRange(
+                [
+                    'values' => $data,
+                ]
+            ),
+            [
+                'valueInputOption' => 'USER_ENTERED',
+            ]
+        );
+    }
 
-	private function createTabIfMissing(Google_Service_Sheets $service, Config $config): void
-	{
-		$sheetInfo = $service->spreadsheets->get($config->getSheetId());
-		$properties = array_column($sheetInfo['sheets'], 'properties');
-		/** @var Google_Service_Sheets_SheetProperties $property */
-		foreach ($properties as $property) {
-			if ($property->getTitle() === $config->getTabName()) {
-				return;
-			}
-		}
-		$body = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest(
-			[
-				'requests' => [
-					'addSheet' => [
-						'properties' => [
-							'title' => $config->getTabName(),
-						],
-					],
-				],
-			]
-		);
-		$service->spreadsheets->batchUpdate($config->getSheetId(), $body);
-	}
+    private function createTabIfMissing(Google_Service_Sheets $service, Config $config): void
+    {
+        $sheetInfo = $service->spreadsheets->get($config->getSheetId());
+        $properties = array_column($sheetInfo['sheets'], 'properties');
+        /** @var Google_Service_Sheets_SheetProperties $property */
+        foreach ($properties as $property) {
+            if ($property->getTitle() === $config->getTabName()) {
+                return;
+            }
+        }
+        $body = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest(
+            [
+                'requests' => [
+                    'addSheet' => [
+                        'properties' => [
+                            'title' => $config->getTabName(),
+                        ],
+                    ],
+                ],
+            ]
+        );
+        $service->spreadsheets->batchUpdate($config->getSheetId(), $body);
+    }
 
 }
