@@ -1,20 +1,12 @@
 {
-  "name": "wavevision/namespace-translator",
+  "name": "simpliko_cz/wavevision_namespace-translator",
   "description": "Manage Nette app translations on per namespace basis.",
   "type": "library",
   "license": "MIT",
   "authors": [
     {
-      "name": "Wavevision s.r.o",
-      "email": "info@wavevision.com"
-    },
-    {
-      "name": "Jakub Filla",
-      "email": "jakub.filla@wavevision.com"
-    },
-    {
-      "name": "Vít Rozsíval",
-      "email": "vit@wavevision.com"
+      "name": "Simpliko s.r.o",
+      "email": "info@simpliko.cz"
     }
   ],
   "autoload": {
