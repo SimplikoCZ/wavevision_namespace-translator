@@ -17,4 +17,9 @@ class Message
 		return sprintf($value, ...Arrays::map($params, fn(string $p) => "%$p%"));
 	}
 
+	public static function createPure(string $value, string ...$params): string
+	{
+		return sprintf($value, ...Arrays::map($params, fn(string $p) => "$p"));
+	}
+
 }
